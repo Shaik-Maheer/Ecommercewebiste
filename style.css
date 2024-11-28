@@ -1,0 +1,119 @@
+/* General Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  /* Body and font setup */
+  body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f4f4f4;
+    text-decoration: none;
+    font-size:20px;
+    color: black;
+    font-weight: bolder;
+  }
+  
+  /* Header styles */
+  .navbar{
+    background-color:white;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    width:100%;
+    font-size:25px;
+  }
+  .navbar img{
+    width: 100px;
+    height: auto;
+  }
+  .navbar-nav{
+    margin-left:auto
+  }
+  .navbar  a:hover {
+    color: #ff6347;
+    border-bottom: 3px solid #ff6347;
+  }
+  button {
+  background-color: black;
+  color: white;
+  padding: 7px 24px;
+  font-size: 23px;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  margin-top: 50px;
+}
+
+button:hover {
+  background-color: #ff6347;
+  transform: scale(1.2);
+}
+ 
+  /* Starting section styles */
+  .starting-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 50px;
+  }
+  
+  .matter {
+    width: 50%;
+  }
+  
+  .matter h1 {
+    font-size: 36px;
+    margin-bottom: 20px;
+    color: #333;
+  }
+  
+  .matter p {
+    font-size: 18px;
+    color: #555;
+    margin-bottom: 20px;
+  }
+  
+  .matter button {
+    padding: 10px 20px;
+    background-color: #ff4e00;
+    color: white;
+    border: none;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 5px;
+  }
+  
+  .matter button:hover {
+    background-color: #e54400;
+  }
+  
+  .imagecontainer img.img2 {
+    width: 100%;
+    height: auto;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  }
+  
+  /* Media query for mobile responsiveness */
+  @media (max-width: 768px) {
+    .starting-heading {
+      flex-direction: column;
+      text-align: center;
+      margin: 20px;
+    }
+   
+    .matter {
+      width: 100%;
+      margin-bottom: 30px;
+    }
+  
+    .imagecontainer img.img2 {
+      width: 80%;
+      margin: 0 auto;
+    }
+   
+    
+    
+  }
+  

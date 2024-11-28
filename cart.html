@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Shopping Cart</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f4;
+        margin: 0;
+        padding: 20px;
+      }
+      h1,
+      h2 {
+        text-align: center;
+        color: #333;
+      }
+      #cart-container {
+        max-width: 800px;
+        margin: 0 auto;
+        background-color: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      }
+      .cart-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 15px 0;
+        border-bottom: 1px solid #ddd;
+      }
+      .cart-item:last-child {
+        border-bottom: none;
+      }
+      .cart-item img {
+        width: 80px;
+        height: auto;
+      }
+      .item-details {
+        flex: 1;
+        margin-left: 20px;
+      }
+      .item-details h3 {
+        margin: 0;
+        font-size: 1.2em;
+      }
+      .item-details p {
+        margin: 5px 0;
+        color: #666;
+      }
+      .quantity-selector {
+        display: flex;
+        align-items: center;
+      }
+      .quantity-selector button {
+        width: 30px;
+        height: 30px;
+        border: none;
+        background-color: #ddd;
+        cursor: pointer;
+      }
+      .quantity-selector input {
+        width: 40px;
+        text-align: center;
+        margin: 0 10px;
+        border: 1px solid #ddd;
+      }
+      .total-amount {
+        margin-top: 20px;
+        text-align: right;
+        font-size: 1.5em;
+        font-weight: bold;
+      }
+      .place-order-btn {
+        display: block;
+        width: 100%;
+        padding: 10px;
+        background-color: orange;
+        border: none;
+        color: white;
+        font-size: 1.2em;
+        text-align: center;
+        cursor: pointer;
+        margin-top: 20px;
+        border-radius: 5px;
+      }
+
+      /* Review Section */
+      #reviews-container {
+        margin-top: 40px;
+      }
+      .review-card {
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 20px;
+        background-color: #f9f9f9;
+      }
+      .review-card h4 {
+        margin: 0;
+        color: #333;
+      }
+      .review-card p {
+        margin: 5px 0;
+        color: #666;
+      }
+      .review-card small {
+        color: #999;
+      }
+      .filter-section {
+        margin-bottom: 20px;
+        text-align: center;
+      }
+      select {
+        padding: 5px;
+        font-size: 1em;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Your Shopping Cart</h1>
+    <div id="cart-container"></div>
+    <div class="total-amount" id="total-amount"></div>
+    <button class="place-order-btn">Place Order</button>
+
+    <!-- Reviews Section -->
+    <div id="reviews-container">
+      <h2>User Reviews</h2>
+      <div class="filter-section">
+        <label for="rating-filter">Filter by rating: </label>
+        <select id="rating-filter">
+          <option value="all">All Ratings</option>
+          <option value="5">5 Stars</option>
+          <option value="4">4 Stars</option>
+          <option value="3">3 Stars</option>
+          <option value="2">2 Stars</option>
+          <option value="1">1 Star</option>
+        </select>
+      </div>
+      <div id="reviews-list"></div>
+    </div>
+
+    <script>
+      // Cart functionality - how works
+      document.addEventListener("DOMContentLoaded", () => {
+        let cartItems = JSON.parse(localStorage.getItem("cart")) || [];
+        const cartContainer = document.getElementById("cart-container");
+        const totalAmountDiv = document.getElementById("total-amount");
+        cartContainer.innerHTML = "";
+
+        if (cartItems.length === 0) {
+          cartContainer.innerHTML = "<p>Your cart is empty.</p>";
+          totalAmountDiv.innerHTML = "";
+          return;
+        }
+
+        function updateTotalAmount() {
+          let totalAmount = 0;
+          for (let i = 0; i < cartItems.length; i++) {
+            totalAmount += cartItems[i].price * cartItems[i].quantity;
+          }
+          totalAmountDiv.innerHTML = `Your Total Bill: $${totalAmount.toFixed(
+            2
+          )}`;
+        }
+
+        cartContainer.addEventListener("click", (event) => {
+          if (event.target.classList.contains("increase-quantity")) {
+            const index = event.target.getAttribute("data-index");
+            cartItems[index].quantity += 1;
+            localStorage.setItem("cart", JSON.stringify(cartItems));
+            renderCart(); // Re-rendering iam
+          } else if (event.target.classList.contains("decrease-quantity")) {
+            const index = event.target.getAttribute("data-index");
+            if (cartItems[index].quantity > 1) {
+              cartItems[index].quantity -= 1;
+              localStorage.setItem("cart", JSON.stringify(cartItems));
+              renderCart(); // Re-renderding  cart is imp for all
+            }
+          }
+        });
+
+        function renderCart() {
+          cartContainer.innerHTML = "";
+          cartItems.forEach((item, index) => {
+            const cartItemDiv = document.createElement("div");
+            cartItemDiv.className = "cart-item";
+
+            const itemSubtotal = item.price * item.quantity;
+
+            cartItemDiv.innerHTML = `
+                        <img src="${item.image}" alt="${item.title}">
+                        <div class="item-details">
+                            <h3>${item.title}</h3>
+                            <p><strong>Description:</strong> ${
+                              item.description
+                            }</p>
+                            <p><strong>Price:</strong> $${item.price.toFixed(
+                              2
+                            )}</p>
+                            <p><strong>Rating:</strong> ${item.rating} / 5 (${
+              item.reviews
+            } reviews)</p>
+                        </div>
+                        <div class="quantity-selector">
+                            <button class="decrease-quantity" data-index="${index}">-</button>
+                            <input type="text" value="${
+                              item.quantity
+                            }" readonly>
+                            <button class="increase-quantity" data-index="${index}">+</button>
+                        </div>
+                        
+                    `;
+            cartContainer.append(cartItemDiv);
+          });
+          updateTotalAmount();
+        }
+        renderCart(); //calling it
+
+        // Reviews functionality
+        const reviewsData = [
+          {
+            username: "JohnDoe",
+            rating: 5,
+            date: "2024-10-01",
+            reviewText:
+              "Amazing product! Exceeded my expectations in every way.",
+            title: "Best Purchase Ever!",
+          },
+          {
+            username: "JaneSmith",
+            rating: 4,
+            date: "2024-09-28",
+            reviewText:
+              "Great value for the price. Had a minor issue but was resolved quickly.",
+            title: "Good Value",
+          },
+          {
+            username: "MarkJohnson",
+            rating: 3,
+            date: "2024-09-25",
+            reviewText: "Decent product, but not as durable as I expected.",
+            title: "Okay Purchase",
+          },
+          {
+            username: "EmilyClark",
+            rating: 2,
+            date: "2024-09-20",
+            reviewText:
+              "Not really satisfied. The quality doesn't match the price.",
+            title: "Disappointing",
+          },
+          {
+            username: "MichaelBrown",
+            rating: 5,
+            date: "2024-09-15",
+            reviewText:
+              "Excellent! I'm really happy with my purchase. Would recommend to everyone.",
+            title: "Highly Recommended!",
+          },
+          {
+            username: "SarahMiller",
+            rating: 1,
+            date: "2024-09-12",
+            reviewText:
+              "Terrible product. It broke within a week. Not worth the money at all.",
+            title: "Very Disappointed",
+          },
+          {
+            username: "DavidWilson",
+            rating: 4,
+            date: "2024-09-10",
+            reviewText:
+              "Good product overall, but shipping was delayed by a week.",
+            title: "Good, but Shipping Delays",
+          },
+          {
+            username: "JessicaTaylor",
+            rating: 5,
+            date: "2024-09-08",
+            reviewText:
+              "This product has changed my life! Incredible performance and durability.",
+            title: "Life-Changing!",
+          },
+          {
+            username: "RobertLee",
+            rating: 3,
+            date: "2024-09-05",
+            reviewText: "It’s an average product. Not bad, but also not great.",
+            title: "Just Okay",
+          },
+          {
+            username: "NancyHarris",
+            rating: 4,
+            date: "2024-09-03",
+            reviewText: "Good quality, but a bit overpriced in my opinion.",
+            title: "Slightly Expensive",
+          },
+          {
+            username: "PaulMartinez",
+            rating: 2,
+            date: "2024-09-01",
+            reviewText:
+              "The product did not work as advertised. Very disappointed.",
+            title: "False Advertising",
+          },
+          {
+            username: "SophiaDavis",
+            rating: 5,
+            date: "2024-08-29",
+            reviewText: "Absolutely love this product! It’s worth every penny.",
+            title: "Fantastic Purchase!",
+          },
+          {
+            username: "DanielGarcia",
+            rating: 3,
+            date: "2024-08-26",
+            reviewText:
+              "The product is okay, but I expected more based on the reviews.",
+            title: "Not as Expected",
+          },
+          {
+            username: "OliviaAnderson",
+            rating: 4,
+            date: "2024-08-23",
+            reviewText:
+              "Good product overall. Solid build quality and good performance.",
+            title: "Solid Product",
+          },
+          {
+            username: "EthanWhite",
+            rating: 1,
+            date: "2024-08-20",
+            reviewText:
+              "The worst product I've ever bought. Completely useless.",
+            title: "Horrible Experience",
+          },
+        ];
+
+        const reviewsContainer = document.getElementById("reviews-list");
+        const ratingFilter = document.getElementById("rating-filter");
+
+        function renderReviews(filteredReviews) {
+          reviewsContainer.innerHTML = "";
+          if (filteredReviews.length === 0) {
+            reviewsContainer.innerHTML =
+              "<p>No reviews available for the selected rating.</p>";
+          } else {
+            filteredReviews.forEach((review) => {
+              const reviewCard = document.createElement("div");
+              reviewCard.className = "review-card";
+              // generate stars
+              let stars = "";
+              for (let i = 0; i < 5; i++) {
+                if (i < review.rating) {
+                  stars += "⭐";
+                } else {
+                  stars += "☆";
+                }
+              }
+              reviewCard.innerHTML = `
+                            <h4>${review.title} <small>- ${stars}</small></h4>
+                            <p>${review.reviewText}</p>
+                            <small>Reviewed by ${review.username} on ${review.date}</small>
+                        `;
+              reviewsContainer.append(reviewCard);
+            });
+          }
+        }
+
+        function filterReviewsByRating(rating) {
+          if (rating === "all") {
+            return reviewsData;
+          } else {
+            return reviewsData.filter((review) => review.rating == rating);
+          }
+        }
+
+        ratingFilter.addEventListener("change", (e) => {
+          const selectedRating = e.target.value;
+          const filteredReviews = filterReviewsByRating(selectedRating);
+          renderReviews(filteredReviews);
+        });
+
+        // renderReviews(reviewsData); //if we want at staring only
+      });
+    </script>
+  </body>
+</html>
